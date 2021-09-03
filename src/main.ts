@@ -4,10 +4,10 @@
  */
 
 import { promisify } from 'util';
-const Axios = require('axios');
-const jsonwebtoken = require('jsonwebtoken');
-const jwkToPem = require('jwk-to-pem');
-const ResponseBuilder = require('./response-builder');
+import * as Axios from 'axios';
+import * as jsonwebtoken from 'jsonwebtoken';
+import jwkToPem from 'jwk-to-pem';
+import { ResponseBuilder } from './response-builder';
 
 
 interface ConfigAuth {
@@ -68,7 +68,7 @@ const Authenticate = (config: ConfigAuth) => {
     const getPublicKeys = async (): Promise<CacheKeys> => {
         if (!cacheKeys) {
             const url = `${cognitoUrl}/.well-known/jwks.json`;
-            const publicKeys = await Axios.default.get(url);
+            const publicKeys = await Axios.default.get<PublicKeys>(url);
             cacheKeys = publicKeys.data.keys.reduce((agg: any, current: any) => {
                 const pem = jwkToPem(current);
                 agg[current.kid] = { instance: current, pem };

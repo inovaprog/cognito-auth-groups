@@ -2,11 +2,10 @@
   "name": "cognito-auth-groups",
   "version": "1.1.0",
   "description": "",
-  "main": "main.ts",
+  "main": "dist/main.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
-
+    "build": "tsc --build"
   },
   "repository": {
     "type": "git",
@@ -31,6 +30,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "jsonwebtoken": "^8.5.1",
-    "jwk-to-pem": "^2.0.5"
+    "jwk-to-pem": "^2.0.5",
+    "typescript": "^4.4.2"
   }
 }
