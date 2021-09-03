@@ -4,17 +4,17 @@
  */
 
 import { promisify } from 'util';
-import * as Axios from 'axios';
-import * as jsonwebtoken from 'jsonwebtoken';
-import jwkToPem from 'jwk-to-pem';
-import { ResponseBuilder } from './response-builder';
+const Axios = require('axios');
+const jsonwebtoken = require('jsonwebtoken');
+const jwkToPem = require('jwk-to-pem');
+const ResponseBuilder = require('./response-builder');
 
 
 interface ConfigAuth {
     poolId: string;
-    groups: string[];
-    region: string;
-    type: 'id' | 'access';
+    groups?: string[];
+    region?: string;
+    type?: string;
 }
 
 interface PublicKeyMetadata {
@@ -68,7 +68,7 @@ const Authenticate = (config: ConfigAuth) => {
     const getPublicKeys = async (): Promise<CacheKeys> => {
         if (!cacheKeys) {
             const url = `${cognitoUrl}/.well-known/jwks.json`;
-            const publicKeys = await Axios.default.get<PublicKeys>(url);
+            const publicKeys = await Axios.default.get(url);
             cacheKeys = publicKeys.data.keys.reduce((agg: any, current: any) => {
                 const pem = jwkToPem(current);
                 agg[current.kid] = { instance: current, pem };
@@ -108,8 +108,10 @@ const Authenticate = (config: ConfigAuth) => {
             if (claim.token_use !== tokenType) {
                 throw new Error('claim use is invalid');
             }
-            if (!claim['cognito:groups'].some((group: string) => config.groups.includes(group))) {
-                return ResponseBuilder.forbidden(res, 401, 'user is not in the authorized group');
+            if (config.groups && config.groups.length > 0) {
+                if (!claim['cognito:groups'].some((group: string) => config.groups.includes(group))) {
+                    return ResponseBuilder.forbidden(res, 401, 'user is not in the authorized group');
+                }
             }
             next();
         } catch (error) {
